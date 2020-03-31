@@ -1,10 +1,6 @@
 # **Traffic Sign Recognition** 
 
-## Writeup
-
-### You can use this file as a template for your writeup if you want to submit it as a markdown file, but feel free to use some other method and submit a pdf if you prefer.
-
----
+Here is a link to my [project code](https://github.com/VamshiK-Kasula/CarND-Traffic-Sign-Classifier-Project/Traffic_Sign_Classifier.ipynb)
 
 **Build a Traffic Sign Recognition Project**
 
@@ -14,100 +10,94 @@ The goals / steps of this project are the following:
 * Design, train and test a model architecture
 * Use the model to make predictions on new images
 * Analyze the softmax probabilities of the new images
-* Summarize the results with a written report
 
 
 [//]: # (Image References)
 
-[image1]: ./examples/visualization.jpg "Visualization"
-[image2]: ./examples/grayscale.jpg "Grayscaling"
-[image3]: ./examples/random_noise.jpg "Random Noise"
-[image4]: ./examples/placeholder.png "Traffic Sign 1"
-[image5]: ./examples/placeholder.png "Traffic Sign 2"
-[image6]: ./examples/placeholder.png "Traffic Sign 3"
-[image7]: ./examples/placeholder.png "Traffic Sign 4"
-[image8]: ./examples/placeholder.png "Traffic Sign 5"
+[original_test_data]: ./results/original_test_data.png  "Test images"
+[histogram]: ./results/histogram.png  "Histogram"
+[test_images]: ./results/new_images.png  "Test Images"
+[accuracy]: ./results/accuracy.png  "Accuracy"
 
-## Rubric Points
-### Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/481/view) individually and describe how I addressed each point in my implementation.  
-
----
-### Writeup / README
-
-#### 1. Provide a Writeup / README that includes all the rubric points and how you addressed each one. You can submit your writeup as markdown or pdf. You can use this template as a guide for writing the report. The submission includes the project code.
-
-You're reading it! and here is a link to my [project code](https://github.com/udacity/CarND-Traffic-Sign-Classifier-Project/blob/master/Traffic_Sign_Classifier.ipynb)
 
 ### Data Set Summary & Exploration
 
-#### 1. Provide a basic summary of the data set. In the code, the analysis should be done using python, numpy and/or pandas methods rather than hardcoding results manually.
+Data set for the Traffic sign recognition is obtained from [German Traffic Sign Dataset](http://benchmark.ini.rub.de/?section=gtsrb&subsection=dataset). It contains test validation and training sets.
 
-I used the pandas library to calculate summary statistics of the traffic
-signs data set:
+* The size of training set is 34799
+* The size of the validation set is 4410
+* The size of test set is 12630
+* The shape of a traffic sign image is (32, 32, 3)
+* The number of unique classes/labels in the data set is 43
 
-* The size of training set is ?
-* The size of the validation set is ?
-* The size of test set is ?
-* The shape of a traffic sign image is ?
-* The number of unique classes/labels in the data set is ?
+Following are the unique classes/labels set:
 
-#### 2. Include an exploratory visualization of the dataset.
+![alt text][original_test_data]
 
-Here is an exploratory visualization of the data set. It is a bar chart showing how the data ...
+The 34799 data set from the training set is distributed as follows:
+![alt text][histogram]
 
-![alt text][image1]
+
+### Pre-process the Data Set
+
+THe given training set is extended by duplicating the available data and rotating or translating the duplicated data. Rotating and translating is done keeping in the view that the images are not captured ideally. Totally the data set is increased to 382789 from 34799 data samples.
+
+```python
+def rotate_image(image, angle):
+    M = cv2.getRotationMatrix2D((image.shape[0] / 2, image.shape[1] / 2), angle, 1)
+    return cv2.warpAffine(image, M, (image.shape[0], image.shape[1]))
+```
+
+```python
+def translate_image(image):
+    t_mat = np.float32([[1,0,np.random.randint(-5,5)],[0,1,np.random.randint(-5,5)]])
+    translate_image = cv2.warpAffine(image,t_mat,(32,32))
+    return translate_image
+```
+After extending the given data, the images are added with gaussian blurr and converted into Grayscale.
+
+```python
+def grayscale(image):
+    gray_image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+    return gray_image
+
+def pre_process(image):
+    blur = cv2.GaussianBlur(image, (3,3) ,0)
+    blurred_image = cv2.addWeighted(image, 1.5, blur, -0.5, 0)
+    gray= grayscale(blurred_image)
+    return np.array(0.8*(gray/255.0)+0.1, dtype=np.float32).reshape(32,32,1)
+
+```
+
+Finally all the images are converted to (32, 32, 1) shape, which is essential in our next steps.
 
 ### Design and Test a Model Architecture
 
-#### 1. Describe how you preprocessed the image data. What techniques were chosen and why did you choose these techniques? Consider including images showing the output of each preprocessing technique. Pre-processing refers to techniques such as converting to grayscale, normalization, etc. (OPTIONAL: As described in the "Stand Out Suggestions" part of the rubric, if you generated additional data for training, describe why you decided to generate additional data, how you generated the data, and provide example images of the additional data. Then describe the characteristics of the augmented training set like number of images in the set, number of images for each class, etc.)
-
-As a first step, I decided to convert the images to grayscale because ...
-
-Here is an example of a traffic sign image before and after grayscaling.
-
-![alt text][image2]
-
-As a last step, I normalized the image data because ...
-
-I decided to generate additional data because ... 
-
-To add more data to the the data set, I used the following techniques because ... 
-
-Here is an example of an original image and an augmented image:
-
-![alt text][image3]
-
-The difference between the original data set and the augmented data set is the following ... 
-
-
-#### 2. Describe what your final model architecture looks like including model type, layers, layer sizes, connectivity, etc.) Consider including a diagram and/or table describing the final model.
+The final model architecture is adapted as described in the course lecture.
 
 My final model consisted of the following layers:
 
 | Layer         		|     Description	        					| 
 |:---------------------:|:---------------------------------------------:| 
-| Input         		| 32x32x3 RGB image   							| 
-| Convolution 3x3     	| 1x1 stride, same padding, outputs 32x32x64 	|
+| Input         		| 32x32x1 grayscale image 						| 
+| Convolution 5x5     	| 1x1 stride, same padding, outputs 28x28x6 	|
 | RELU					|												|
-| Max pooling	      	| 2x2 stride,  outputs 16x16x64 				|
-| Convolution 3x3	    | etc.      									|
-| Fully connected		| etc.        									|
-| Softmax				| etc.        									|
-|						|												|
-|						|												|
- 
+| Max pooling	      	| 1x1 stride,  outputs 10x10x16 				|
+| Flatten	outputs	    | 400 outputs    								|
+| Fully connected		| 120 outputs      								|
+| RELU					|												|
+| Fully connected		| 84 outputs        				     		|
+| RELU					|												|
+| Fully connected		| outputs = number of lanels    	     		|
 
 
-#### 3. Describe how you trained your model. The discussion can include the type of optimizer, the batch size, number of epochs and any hyperparameters such as learning rate.
 
-To train the model, I used an ....
-
-#### 4. Describe the approach taken for finding a solution and getting the validation set accuracy to be at least 0.93. Include in the discussion the results on the training, validation and test sets and where in the code these were calculated. Your approach may have been an iterative process, in which case, outline the steps you took to get to the final solution and why you chose those steps. Perhaps your solution involved an already well known implementation or architecture. In this case, discuss why you think the architecture is suitable for the current problem.
+To train the model, I used 25 epochs with a batch size of 256.
 
 My final model results were:
-* training set accuracy of ?
-* validation set accuracy of ? 
-* test set accuracy of ?
+* training set accuracy of 0.904
+* validation set accuracy of 0.892 
+* test set accuracy of 0.907
 
 If an iterative approach was chosen:
 * What was the first architecture that was tried and why was it chosen?
@@ -124,48 +114,41 @@ If a well known architecture was chosen:
 
 ### Test a Model on New Images
 
-#### 1. Choose five German traffic signs found on the web and provide them in the report. For each image, discuss what quality or qualities might be difficult to classify.
+The following new images are tested using the model
 
-Here are five German traffic signs that I found on the web:
-
-![alt text][image4] ![alt text][image5] ![alt text][image6] 
-![alt text][image7] ![alt text][image8]
-
-The first image might be difficult to classify because ...
-
-#### 2. Discuss the model's predictions on these new traffic signs and compare the results to predicting on the test set. At a minimum, discuss what the predictions were, the accuracy on these new predictions, and compare the accuracy to the accuracy on the test set (OPTIONAL: Discuss the results in more detail as described in the "Stand Out Suggestions" part of the rubric).
+![alt text][test_images]
 
 Here are the results of the prediction:
 
-| Image			        |     Prediction	        					| 
-|:---------------------:|:---------------------------------------------:| 
-| Stop Sign      		| Stop sign   									| 
-| U-turn     			| U-turn 										|
-| Yield					| Yield											|
-| 100 km/h	      		| Bumpy Road					 				|
-| Slippery Road			| Slippery Road      							|
+| Image			                                        |     Prediction	                   					| 
+|:-----------------------------------------------------:|:-----------------------------------------------------:| 
+| Go straight or rightStop Sign      		            | Go straight or rightStop Sign                         |
+| Road workU-turn     			                        | Road workU-turn     			                        |
+| No vehiclesYield					                    | No vehiclesYield					                    |
+| No passing for vehicles over 3.5 metric tons100 km/h	| No passing for vehicles over 3.5 metric tons100 km/h  |
+| Speed limit (60km/h)Slippery Road			            | Speed limit (60km/h)Slippery                          |
+| Turn right ahead                                      | Turn right ahead                                      |
+|  <span style="color:red">Roundabout mandatory </span> |  <span style="color:red">Priority road      </span>   |
+| Speed limit (30km/h)                                  | Speed limit (30km/h)                                  |
+| General caution                                       | General caution                                       |
+| Road narrows on the right                             | Road narrows on the right                             |
 
 
-The model was able to correctly guess 4 of the 5 traffic signs, which gives an accuracy of 80%. This compares favorably to the accuracy on the test set of ...
 
-#### 3. Describe how certain the model is when predicting on each of the five new images by looking at the softmax probabilities for each prediction. Provide the top 5 softmax probabilities for each image along with the sign type of each probability. (OPTIONAL: as described in the "Stand Out Suggestions" part of the rubric, visualizations can also be provided such as bar charts)
+The model was able to correctly guess 9 of the 10 traffic signs, which gives an accuracy of 90%. Roundabout mandatory sign was classified wrongly as Priority road
 
-The code for making predictions on my final model is located in the 11th cell of the Ipython notebook.
-
-For the first image, the model is relatively sure that this is a stop sign (probability of 0.6), and the image does contain a stop sign. The top five soft max probabilities were
-
-| Probability         	|     Prediction	        					| 
-|:---------------------:|:---------------------------------------------:| 
-| .60         			| Stop sign   									| 
-| .20     				| U-turn 										|
-| .05					| Yield											|
-| .04	      			| Bumpy Road					 				|
-| .01				    | Slippery Road      							|
-
-
-For the second image ... 
-
-### (Optional) Visualizing the Neural Network (See Step 4 of the Ipython notebook for more details)
-#### 1. Discuss the visual output of your trained network's feature maps. What characteristics did the neural network use to make classifications?
-
-
+the prediction breakdown of each images are as follows:
+---
+### Results
+| Road Sign             | Prediction    | 
+|:---------------------:|:-------------:| 
+|<img src=./results/36.png width="100"> |**36 Go straight or right:**<br> 36: 90.25%<br> 38: 2.98%<br> 40: 1.39%<br> |
+|<img src=./results/25.png width="100"> |**25 Road work:**<br> 25: 96.19%<br> 29: 0.63%<br> 38: 0.58%<br>|
+|<img src=./results/15.png width="100"> |**15 No vehicles:**<br> 15: 95.94%<br> 12: 0.95%<br> 38: 0.75%<br>|
+|<img src=./results/10.png width="100"> |**10 No passing for vehicles over 3.5 metric tons:**<br> 10: 97.51%<br> 5: 1.64%<br> 2: 0.43%<br>|
+|<img src=./results/3.png width="100"> |**3 Speed limit (60km/h):**<br> 3: 99.66%<br> 5: 0.34%<br> 2: 0.00%<br>|
+|<img src=./results/33.png width="100"> |**33 Turn right ahead:**<br> 33: 99.89%<br> 37: 0.04%<br> 35: 0.04%<br>|
+|<img src=./results/12.png width="100"> | <span style="color:red">**12 Priority road:**<br> 12: 47.23%<br> 42: 8.82%<br> 40: 7.94%<br> </span>|
+|<img src=./results/1.png width="100"> |**1 Speed limit (30km/h):**<br> 1: 90.92%<br> 0: 8.00%<br> 2: 0.58%<br>|
+|<img src=./results/18.png width="100"> |**18 General caution:**<br> 18: 97.90%<br> 26: 1.85%<br> 27: 0.25%<br>|
+|<img src=./results/24.png width="100"> |**24 Road narrows on the right:**<br> 24: 79.32%<br> 18: 7.96%<br> 27: 5.33%<br>|
