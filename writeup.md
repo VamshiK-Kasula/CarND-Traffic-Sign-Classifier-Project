@@ -95,9 +95,9 @@ My final model consisted of the following layers:
 To train the model, I used 25 epochs with a batch size of 256.
 
 My final model results were:
-* training set accuracy of 0.904
-* validation set accuracy of 0.892 
-* test set accuracy of 0.907
+* training set accuracy of 0.944
+* validation set accuracy of 0.935 
+* test set accuracy of 0.933
 
 If an iterative approach was chosen:
 * What was the first architecture that was tried and why was it chosen?
@@ -142,13 +142,14 @@ the prediction breakdown of each images are as follows:
 ### Results
 | Road Sign             | Prediction    | 
 |:---------------------:|:-------------:| 
-|<img src=./results/36.png width="100"> |**36 Go straight or right:**<br> 36: 90.25%<br> 38: 2.98%<br> 40: 1.39%<br> |
-|<img src=./results/25.png width="100"> |**25 Road work:**<br> 25: 96.19%<br> 29: 0.63%<br> 38: 0.58%<br>|
-|<img src=./results/15.png width="100"> |**15 No vehicles:**<br> 15: 95.94%<br> 12: 0.95%<br> 38: 0.75%<br>|
-|<img src=./results/10.png width="100"> |**10 No passing for vehicles over 3.5 metric tons:**<br> 10: 97.51%<br> 5: 1.64%<br> 2: 0.43%<br>|
-|<img src=./results/3.png width="100"> |**3 Speed limit (60km/h):**<br> 3: 99.66%<br> 5: 0.34%<br> 2: 0.00%<br>|
-|<img src=./results/33.png width="100"> |**33 Turn right ahead:**<br> 33: 99.89%<br> 37: 0.04%<br> 35: 0.04%<br>|
-|<img src=./results/12.png width="100"> | <span style="color:red">**12 Priority road:**<br> 12: 47.23%<br> 42: 8.82%<br> 40: 7.94%<br> </span>|
-|<img src=./results/1.png width="100"> |**1 Speed limit (30km/h):**<br> 1: 90.92%<br> 0: 8.00%<br> 2: 0.58%<br>|
-|<img src=./results/18.png width="100"> |**18 General caution:**<br> 18: 97.90%<br> 26: 1.85%<br> 27: 0.25%<br>|
-|<img src=./results/24.png width="100"> |**24 Road narrows on the right:**<br> 24: 79.32%<br> 18: 7.96%<br> 27: 5.33%<br>|
+|<img src=./results/36.png width="100"> |**36 Go straight or right:** <br> 36: 84.56% <br> 34: 7.43% <br> 37: 2.21% <br>|
+|<img src=./results/25.png width="100"> |**25 Road work:** <br> 25: 98.11% <br> 18: 1.01% <br> 11: 0.34% <br>|
+|<img src=./results/15.png width="100"> |**15 No vehicles:** <br> 15: 99.92% <br> 12: 0.04% <br> 9: 0.01% <br>|
+|<img src=./results/10.png width="100"> |**10 No passing for vehicles over 3.5 metric tons:** <br> 10: 99.93% <br> 9: 0.04% <br> 5: 0.02% <br>|
+|<img src=./results/3.png width="100">  |**3 Speed limit (60km/h):** <br> 3: 99.98% <br> 2: 0.01% <br> 5: 0.01% <br>|
+|<img src=./results/33.png width="100"> |**33 Turn right ahead:** <br> 33: 99.98% <br> 39: 0.01% <br> 35: 0.00% <br>|
+|<img src=./results/12.png width="100"> |<span style="color:red">**12 Priority road:** <br> 12: 79.64% <br> 40: 10.14% <br> 32: 2.73% <br> </span>|
+|<img src=./results/1.png width="100">  |**1 Speed limit (30km/h):** <br> 1: 99.85% <br> 2: 0.11% <br> 0: 0.05% <br>|
+|<img src=./results/18.png width="100"> |**18 General caution:** <br> 18: 67.75% <br> 24: 13.90% <br> 26: 9.66% <br>|
+|<img src=./results/24.png width="100"> |**24 Road narrows on the right:** <br> 24: 91.83% <br> 27: 1.72% <br> 26: 1.67% <br>|
+
